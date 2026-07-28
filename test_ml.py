@@ -1,28 +1,40 @@
-import pytest
-# TODO: add necessary import
+import numpy as np
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
 
-# TODO: implement the first test. Change the function name and input as needed
-def test_one():
-    """
-    # add description for the first test
-    """
-    # Your code here
-    pass
+from ml.model import train_model, inference, compute_model_metrics
 
 
-# TODO: implement the second test. Change the function name and input as needed
-def test_two():
+def test_train_model_returns_random_forest():
     """
-    # add description for the second test
+    Test that train_model returns a trained RandomForestClassifier instance.
     """
-    # Your code here
-    pass
+    X_train = np.array([[0, 1], [1, 0], [1, 1], [0, 0]])
+    y_train = np.array([0, 1, 1, 0])
+    model = train_model(X_train, y_train)
+    assert isinstance(model, RandomForestClassifier)
 
 
-# TODO: implement the third test. Change the function name and input as needed
-def test_three():
+def test_inference_output_shape():
     """
-    # add description for the third test
+    Test that inference returns predictions with the same number of rows
+    as the input data.
     """
-    # Your code here
-    pass
+    X_train = np.array([[0, 1], [1, 0], [1, 1], [0, 0]])
+    y_train = np.array([0, 1, 1, 0])
+    model = train_model(X_train, y_train)
+    preds = inference(model, X_train)
+    assert len(preds) == len(y_train)
+
+
+def test_compute_model_metrics_values():
+    """
+    Test that compute_model_metrics returns precision, recall, and F1
+    as floats within the valid range of 0 to 1.
+    """
+    y = np.array([1, 0, 1, 1])
+    preds = np.array([1, 0, 0, 1])
+    precision, recall, fbeta = compute_model_metrics(y, preds)
+    assert 0.0 <= precision <= 1.0
+    assert 0.0 <= recall <= 1.0
+    assert 0.0 <= fbeta <= 1.0
