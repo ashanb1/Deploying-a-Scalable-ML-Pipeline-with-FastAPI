@@ -1,29 +1,52 @@
-Working in a command line environment is recommended for ease of use with git and dvc. If on Windows, WSL1 or 2 is recommended.
+# Deploying a Scalable ML Pipeline with FastAPI
+Repo: https://github.com/ashanb1/Deploying-a-Scalable-ML-Pipeline-with-FastAPI
 
-# Environment Set up (pip or conda)
-* Option 1: use the supplied file `environment.yml` to create a new environment with conda
-* Option 2: use the supplied file `requirements.txt` to create a new environment with pip
-    
-## Repositories
-* Create a directory for the project and initialize git.
-    * As you work on the code, continually commit changes. Trained models you want to use in production must be committed to GitHub.
-* Connect your local git repo to GitHub.
-* Setup GitHub Actions on your repo. You can use one of the pre-made GitHub Actions if at a minimum it runs pytest and flake8 on push and requires both to pass without error.
-    * Make sure you set up the GitHub Action to have the same version of Python as you used in development.
+## Project Overview
+This project trains a machine learning classifier on U.S. Census Bureau data to predict whether an individual's income exceeds $50K per year. It includes a full ML pipeline (data preprocessing, training, evaluation, and slice-based performance analysis) and deploys the trained model behind a RESTful API built with FastAPI.
 
-# Data
-* Download census.csv and commit it to dvc.
-* This data is messy, try to open it in pandas and see what you get.
-* To clean it, use your favorite text editor to remove all spaces.
+## Environment Setup
+This project uses conda. Create the environment from the provided file:
 
-# Model
-* Using the starter code, write a machine learning model that trains on the clean data and saves the model. Complete any function that has been started.
-* Write unit tests for at least 3 functions in the model code.
-* Write a function that outputs the performance of the model on slices of the data.
-    * Suggestion: for simplicity, the function can just output the performance on slices of just the categorical features.
-* Write a model card using the provided template.
+```bash
+conda env create -f environment.yml
+conda activate fastapi
+```
 
-# API Creation
-*  Create a RESTful API using FastAPI this must implement:
-    * GET on the root giving a welcome message.
-    * POST that does model inference.
+## Project Structure
+- `data/census.csv` — U.S. Census Bureau dataset used for training and evaluation
+- `ml/data.py` — data preprocessing functions
+- `ml/model.py` — model training, inference, saving/loading, and slice metric functions
+- `train_model.py` — full training pipeline script; trains the model and outputs `slice_output.txt`
+- `test_ml.py` — unit tests for the ML pipeline
+- `main.py` — FastAPI application with GET and POST endpoints
+- `local_api.py` — script to test the live API with GET and POST requests
+- `model_card.md` — documentation of the trained model, its intended use, and performance
+- `model/` — saved model and encoder artifacts (`model.pkl`, `encoder.pkl`)
+- `screenshots/` — screenshots showing passing CI, passing unit tests, and a successful local API test
+
+## Running the Pipeline
+Train the model and generate slice performance metrics:
+```bash
+python train_model.py
+```
+
+Run the unit tests:
+```bash
+pytest test_ml.py -v
+```
+
+## Running the API
+Start the API locally:
+```bash
+uvicorn main:app --reload
+```
+
+In a separate terminal, test it:
+```bash
+python local_api.py
+```
+
+You can also explore the API interactively at `http://127.0.0.1:8000/docs` once it's running.
+
+## Continuous Integration
+GitHub Actions runs `flake8` and `pytest` on every push to ensure code quality and test coverage. See `.github/workflows/manual.yml`.
